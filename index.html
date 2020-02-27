@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1,shrink-to-fit=no" />
+
+  <title>standalone hydra</title>
+
+  <link rel="stylesheet" type="text/css" href="css/style.css" />
+</head>
+
+<body>
+  <div>
+    <span> Speed</span>
+    <input type="range" min="0" max="200" value="50" id="speed">
+    <span> Frequency</span>
+    <input type="range" min="1" max="200" value="40" id="frequency">
+    <button id="rotate"> Rotate </button>
+    <button id="pattern"> Change Base Pattern </button>
+    <button id="complexity"> Add Complexity </button>
+    <button id="color"> Change Color </button>
+  </div>
+  <canvas id="hydra-canvas" width="1920" height="1080"></canvas>
+  <script type="text/javascript" src="js/bundle.js"></script>
+</body>
+
+</html>
