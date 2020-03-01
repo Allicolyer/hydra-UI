@@ -1,0 +1,123 @@
+@charset "UTF-8";
+.button {
+  display: inline-block;
+  border-radius: 2em;
+  padding: 0.5em 3em;
+  border: 0.16em solid #ef8b56;
+  box-sizing: border-box;
+  text-decoration: none;
+  font-weight: 400;
+  color: #12190a;
+  border-color: #ef8b56;
+  background-color: #ef8b56;
+  text-align: center;
+  transition: all 0.15s;
+}
+.button:hover {
+  cursor: pointer;
+  font-weight: bold;
+  border-color: #ef8b56;
+  background-color: #ffffff;
+}
+.button:focus {
+  border-color: #ef8b56;
+  background-color: #ef8b56;
+}
+.button:active {
+  border-color: #ef8b56;
+}
+@media screen and (max-width: 800px) {
+  .button {
+     display: block;
+  }
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+#button-container {
+  display: flex;
+  flex-direction: column;
+  align-content: center;
+  justify-content: center;
+  width: 30%;
+  margin: 0 auto;
+}
+
+.header {
+  font-family: "Rubik", Impact;
+}
+
+#hydra-canvas {
+  width: 100%;
+  height: 100vh;
+}
+
+.vertical-center {
+  margin: 0 auto;
+}
+
+.horizontal-center {
+  margin: auto 0;
+}
+
+.mt-1, .my-1, .m-1 {
+  margin-top: 5px;
+}
+
+.mb-1, .my-1, .m-1 {
+  margin-bottom: 5px;
+}
+
+.ml-1, .mx-1, .m-1 {
+  margin-left: 5px;
+}
+
+.mr-1, .mx-1, .m-1 {
+  margin-right: 5px;
+}
+
+.mt-2, .my-2, .m-2 {
+  margin-top: 10px;
+}
+
+.mb-2, .my-2, .m-2 {
+  margin-bottom: 10px;
+}
+
+.ml-2, .mx-2, .m-2 {
+  margin-left: 10px;
+}
+
+.mr-2, .mx-2, .m-2 {
+  margin-right: 10px;
+}
+
+.mt-3, .my-3, .m-3 {
+  margin-top: 15px;
+}
+
+.mb-3, .my-3, .m-3 {
+  margin-bottom: 15px;
+}
+
+.ml-3, .mx-3, .m-3 {
+  margin-left: 15px;
+}
+
+.mr-3, .mx-3, .m-3 {
+  margin-right: 15px;
+}
+
+@font-face {
+  font-family: "Rubik";
+  src: url("../assets/rubrik/RubikMonoOne-Regular.eot");
+  src: url("../assets/rubrik/RubikMonoOne-Regular.eot?#iefix") format("embedded-opentype"), url("../assets/rubrik/RubikMonoOne-Regular.otf") format("opentype"), url("../assets/rubrik/RubikMonoOne-Regular.svg") format("svg"), url("../assets/rubrik/RubikMonoOne-Regular.ttf") format("truetype"), url("../assets/rubrik/RubikMonoOne-Regular.woff") format("woff"), url("../assets/rubrik/RubikMonoOne-Regular.woff2") format("woff2");
+  font-weight: normal;
+  font-style: normal;
+}
+
+/*# sourceMappingURL=main.css.map */

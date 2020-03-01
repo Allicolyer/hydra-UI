@@ -1,0 +1,74 @@
+.vertical-center {
+  margin: 0 auto;
+}
+
+.horizontal-center {
+  margin: auto 0;
+}
+
+//margin classes
+.mt-1 {
+  margin-top: 5px;
+}
+.mb-1 {
+  margin-bottom: 5px;
+}
+.my-1 {
+  @extend .mt-1, .mb-1;
+}
+.ml-1 {
+  margin-left: 5px;
+}
+.mr-1 {
+  margin-right: 5px;
+}
+.mx-1 {
+  @extend .ml-1, .mr-1;
+}
+.m-1 {
+  @extend .my-1, .mx-1;
+}
+
+.mt-2 {
+  margin-top: 10px;
+}
+.mb-2 {
+  margin-bottom: 10px;
+}
+.my-2 {
+  @extend .mt-2, .mb-2;
+}
+.ml-2 {
+  margin-left: 10px;
+}
+.mr-2 {
+  margin-right: 10px;
+}
+.mx-2 {
+  @extend .ml-2, .mr-2;
+}
+.m-2 {
+  @extend .my-2, .mx-2;
+}
+
+.mt-3 {
+  margin-top: 15px;
+}
+.mb-3 {
+  margin-bottom: 15px;
+}
+.my-3 {
+  @extend .mt-3, .mb-3;
+}
+.ml-3 {
+  margin-left: 15px;
+}
+.mr-3 {
+  margin-right: 15px;
+}
+.mx-3 {
+  @extend .ml-3, .mr-3;
+}
+.m-3 {
+  @extend .my-3, .mx-3;
+}
