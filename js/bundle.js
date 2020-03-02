@@ -1,6 +1,6 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 const Hydra = require("hydra-synth");
-const { sources, mixers, variants } = require("./functions");
+const { createSourceButtons } = require("./modules/source.js");
 
 const sketch = new Hydra({
   // selects our canvas element in our DOM
@@ -28,85 +28,14 @@ const sketch = new Hydra({
   // if your code doesn't use audio
 });
 
-//utility function
-function getRandomInt(max) {
-  return Math.floor(Math.random() * Math.floor(max));
-}
-
-//sets the state object
+//Global variables
+//define global sketchState Variable
 var sketchState = {};
-
-//container for all buttons
-let buttonContainer = document.getElementById("button-container");
-
-//loop through all of the sources and create button
-const createSourceButtons = () => {
-  sources.forEach(source => {
-    const name = source.name;
-    const btn = document.createElement("div");
-    btn.setAttribute("class", `button my-1`);
-    btn.setAttribute("id", `${name}`);
-    btn.innerHTML = `${name}`;
-    //add an eventHandler that adds the source to the sketch
-    btn.onclick = () => addSourcetoSketchState(source);
-    buttonContainer.appendChild(btn);
-  });
-};
-
-// loop through all params for any given source
-const createParamsButtons = source => {
-  buttonContainer.innerHTML = "";
-  let paramsKey = Object.keys(source.params);
-  paramsKey.forEach(key => {
-    param = source.params[key];
-    //add a span with each parameter name
-    const nameSpan = document.createElement("span");
-    nameSpan.innerHTML = `${param.name}`;
-    buttonContainer.appendChild(nameSpan);
-
-    //create range inputs for float or ints
-    if (param.type === "float" || "int") {
-      const input = document.createElement("input");
-      input.setAttribute("type", "range");
-      input.setAttribute("min", 0);
-      input.setAttribute("max", 100);
-      const scale = (param.max - param.min) / 100;
-      input.setAttribute("value", param.value / scale);
-      input.setAttribute("class", "slider");
-      input.oninput = () => updateParam(key, event.target.value, scale);
-      buttonContainer.appendChild(input);
-    }
-  });
-};
-
-//update a parameter
-const updateParam = (key, eventValue, scale) => {
-  eventValue = eventValue * scale;
-  sketchState.params[key].value = eventValue;
-  loadSketch();
-};
-//add the sources to the sketchState
-addSourcetoSketchState = source => {
-  sketchState = source;
-  loadSketch();
-  createParamsButtons(source);
-};
-
-function loadSketch() {
-  let func = eval(sketchState.name);
-  let values = [];
-  let paramsKey = Object.keys(sketchState.params);
-  paramsKey.forEach(key => {
-    values.push(sketchState.params[key].value);
-  });
-  let state = func(...values);
-  return state.out();
-}
 
 //when everything loads up
 createSourceButtons();
 
-},{"./functions":2,"hydra-synth":5}],2:[function(require,module,exports){
+},{"./modules/source.js":4,"hydra-synth":8}],2:[function(require,module,exports){
 const sources = [
   {
     name: "gradient",
@@ -191,6 +120,15 @@ const sources = [
 ];
 
 const mixers = [
+  {
+    name: "add",
+    params: {
+      amount: { name: "amount", value: 0.5, type: "float", min: 0, max: 100 }
+    }
+    //Add textures
+    //.add( texture, amount )
+    // amount :: float (default 0.5)
+  },
   "add",
   //Add textures
   //.add( texture, amount )
@@ -262,91 +200,511 @@ const mixers = [
 //add Math.sin or Math.radom to argumetns
 // ({time}) => Math.sin(time) * 10
 
-const variants = [
-  "brightness",
-  //.brightness( amount )
-  //amount :: float (default 0.4)
-  "contrast",
-  //  .contrast( amount )
-  // amount :: float (default 1.6)
-  // Larger amount valueue makes higher contr
-  "color",
-  // .color( r, g, b )
-  // r :: float
-  // g :: float
-  // b :: float
-  "colorama",
-  //.colorama( amount )
-  //amount :: float (default 0.005)
-  "invert",
-  // .invert( amount )
-  // amount :: float (default 1.0)
-  "kaleid",
-  // .kaleid( nSides )
-  // nSides :: float (default 4.0)
-  "luma",
-  // .luma( threshold, tolerance )
-  // threshold :: float (default 0.5)
-  // tolerance :: float (default 0.1)
-  "pixelate",
-  //.pixelate( x, y )
-  //pixelX :: float (default 20.0)
-  //pixelY :: float (default 20.0)
-  "posterize",
-  // .posterize( bins, gamma )
-  // bins :: float (default 3.0)
-  // gamma :: float (default 0.6)
-  "repeat",
-  // .repeat( repeatX, repeatY, offsetX, offsetY )
-  // repeatX :: float (default 3.0)
-  // repeatY :: float (default 3.0)
-  // offsetX :: float (default 0.0)
-  // offsetY :: float (default 0.0)
-  "repeatY",
-  //.repeatY( reps, offset )
-  // reps :: float (default 3.0)
-  // offset :: float (default 0.0)
-  "rotate",
-  // .rotate( angle, speed )
-  // angle :: float (default 10.0)
-  // speed :: float (default 0.0)
-  "saturate",
-  // .saturate( amount )
-  // amount :: float (default 2.0)
-  "scale",
-  // .scale( size, xMult, yMult )
-  // size :: float (default 1.5)
-  // xMult :: float (default 1.0)
-  // yMult :: float (default 1.0)
-  "scrollX",
-  // .scrollX( scrollX, speed )
-  // scrollX :: float (default 0.5)
-  // speed :: float (default 0.0)
-  "scrollY",
-  // .scrollY( scrollX, speed )
-  // scrollY :: float (default 0.5)
-  // speed :: float (default 0.0)
-  "shift",
-  //   .shift( r, g, b, a )
-  // r :: float (default 0.5)
-  // g :: float (default 0.5)
-  // b :: float (default 0.5)
-  // a :: float (default 0.5)
-  "thresh"
-  // .thresh( threshold, tolerance )
-  // threshold :: float (default 0.5)
-  // tolerance :: float (default 0.04)
+const modifiers = [
+  {
+    name: "brightness",
+    params: {
+      speed: { name: "brightness", amount: 0.4, type: "float", min: 0, max: 1 }
+    }
+    //brightness( amount )
+    //amount :: float (default 0.4)
+  },
+  {
+    name: "contrast",
+    params: {
+      speed: { name: "contrast", amount: 1.6, type: "float", min: 0, max: 10 }
+    }
+    // .contrast( amount )
+    // amount :: float (default 1.6)
+    // Larger amount valueue makes higher contr
+  },
+  {
+    name: "contrast",
+    params: {
+      speed: { name: "contrast", amount: 1.6, type: "float", min: 0, max: 10 }
+    }
+    // .contrast( amount )
+    // amount :: float (default 1.6)
+    // Larger amount value makes higher contrast
+  },
+  {
+    name: "color",
+    params: {
+      r: { name: "r", amount: 0.5, type: "float", min: 0, max: 1 },
+      g: { name: "g", amount: 0.5, type: "float", min: 0, max: 1 },
+      b: { name: "b", amount: 0.5, type: "float", min: 0, max: 1 }
+    }
+    // .color( r, g, b )
+    // r :: float
+    // g :: float
+    // b :: float
+  },
+  {
+    name: "colorama",
+    params: {
+      amount: { name: "amount", amount: 0.005, type: "float", min: 0, max: 0.1 }
+    }
+    //.colorama( amount )
+    //amount :: float (default 0.005)
+  },
+  {
+    name: "colorama",
+    params: {
+      amount: { name: "amount", amount: 0.005, type: "float", min: 0, max: 0.1 }
+    }
+    //.colorama( amount )
+    //amount :: float (default 0.005)
+  },
+  {
+    name: "invert",
+    params: {
+      amount: { name: "amount", amount: 1, type: "float", min: 0, max: 10 }
+    }
+    // .invert( amount )
+    // amount :: float (default 1.0)
+  },
+  {
+    name: "kaleid",
+    params: {
+      nSides: { name: "nSides", amount: 4.0, type: "float", min: 0, max: 10 }
+    }
+    // .kaleid( nSides )
+    // nSides :: float (default 4.0)
+  },
+  {
+    name: "luma",
+    params: {
+      threshold: {
+        name: "threshold",
+        amount: 0.5,
+        type: "float",
+        min: 0,
+        max: 1
+      },
+      tolerance: {
+        name: "tolerance",
+        amount: 0.1,
+        type: "float",
+        min: 0,
+        max: 1
+      }
+    }
+    // .luma( threshold, tolerance )
+    // threshold :: float (default 0.5)
+    // tolerance :: float (default 0.1)
+  },
+  {
+    name: "pixelate",
+    params: {
+      pixelX: {
+        name: "pixelX",
+        amount: 20.0,
+        type: "float",
+        min: 0,
+        max: 100
+      },
+      pixelY: {
+        name: "pixelY",
+        amount: 20.0,
+        type: "float",
+        min: 0,
+        max: 100
+      }
+    }
+    //.pixelate( x, y )
+    //pixelX :: float (default 20.0)
+    //pixelY :: float (default 20.0)
+  },
+  {
+    name: "posterize",
+    params: {
+      bins: {
+        name: "bins",
+        amount: 3,
+        type: "float",
+        min: 0,
+        max: 10
+      },
+      gamma: {
+        name: "gamma",
+        amount: 0.6,
+        type: "float",
+        min: 0,
+        max: 1
+      }
+    }
+    // .posterize( bins, gamma )
+    // bins :: float (default 3.0)
+    // gamma :: float (default 0.6)
+  },
+  {
+    name: "repeat",
+    params: {
+      repeatX: {
+        name: "repeatX",
+        amount: 3,
+        type: "float",
+        min: 0,
+        max: 10
+      },
+      repeatY: {
+        name: "repeatY",
+        amount: 3.0,
+        type: "float",
+        min: 0,
+        max: 10
+      },
+      offsetX: {
+        name: "offsetX",
+        amount: 0,
+        type: "float",
+        min: 0,
+        max: 10
+      },
+      offsetY: {
+        name: "offsetY",
+        amount: 0,
+        type: "float",
+        min: 0,
+        max: 10
+      }
+    }
+    // .repeat( repeatX, repeatY, offsetX, offsetY )
+    // repeatX :: float (default 3.0)
+    // repeatY :: float (default 3.0)
+    // offsetX :: float (default 0.0)
+    // offsetY :: float (default 0.0)
+  },
+  {
+    name: "repeatY",
+    params: {
+      reps: {
+        name: "reps",
+        amount: 3.0,
+        type: "float",
+        min: 0,
+        max: 10
+      },
+      offset: {
+        name: "offset",
+        amount: 0,
+        type: "float",
+        min: 0,
+        max: 10
+      }
+    }
+    //.repeatY( reps, offset )
+    // reps :: float (default 3.0)
+    // offset :: float (default 0.0)
+  },
+  {
+    name: "rotate",
+    params: {
+      angle: {
+        name: "angle",
+        amount: 10.0,
+        type: "float",
+        min: 0,
+        max: 100
+      },
+      speed: {
+        name: "speed",
+        amount: 0,
+        type: "float",
+        min: 0,
+        max: 10
+      }
+    }
+    // .rotate( angle, speed )
+    // angle :: float (default 10.0)
+    // speed :: float (default 0.0)
+  },
+  {
+    name: "saturate",
+    params: {
+      amount: {
+        name: "amount",
+        amount: 2.0,
+        type: "float",
+        min: 0,
+        max: 10
+      }
+    }
+    // .saturate( amount )
+    // amount :: float (default 2.0)
+  },
+  {
+    name: "scale",
+    params: {
+      size: {
+        name: "size",
+        amount: 1.5,
+        type: "float",
+        min: 0,
+        max: 10
+      },
+      xMult: {
+        name: "xMult",
+        amount: 1.0,
+        type: "float",
+        min: 0,
+        max: 10
+      },
+      yMult: {
+        name: "yMult",
+        amount: 1.0,
+        type: "float",
+        min: 0,
+        max: 10
+      }
+    }
+    // .scale( size, xMult, yMult )
+    // size :: float (default 1.5)
+    // xMult :: float (default 1.0)
+    // yMult :: float (default 1.0)
+  },
+  {
+    name: "scrollX",
+    params: {
+      scrollX: {
+        name: "scrollX",
+        amount: 0.5,
+        type: "float",
+        min: 0,
+        max: 1
+      },
+      speed: {
+        name: "speed",
+        amount: 0,
+        type: "float",
+        min: 0,
+        max: 10
+      }
+      // .scrollX( scrollX, speed )
+      // scrollX :: float (default 0.5)
+      // speed :: float (default 0.0)
+    }
+  },
+  {
+    name: "scrollY",
+    params: {
+      scrollY: {
+        name: "scrollY",
+        amount: 0.5,
+        type: "float",
+        min: 0,
+        max: 1
+      },
+      speed: {
+        name: "speed",
+        amount: 0,
+        type: "float",
+        min: 0,
+        max: 10
+      }
+      // .scrollY( scrollX, speed )
+      // scrollY :: float (default 0.5)
+      // speed :: float (default 0.0)
+    }
+  },
+  {
+    name: "shift",
+    params: {
+      r: { name: "r", amount: 0.5, type: "float", min: 0, max: 1 },
+      g: { name: "g", amount: 0.5, type: "float", min: 0, max: 1 },
+      b: { name: "b", amount: 0.5, type: "float", min: 0, max: 1 }
+    }
+    //   .shift( r, g, b, a )
+    // r :: float (default 0.5)
+    // g :: float (default 0.5)
+    // b :: float (default 0.5)
+    // a :: float (default 0.5)
+  },
+  {
+    name: "thresh",
+    params: {
+      threshold: {
+        name: "threshold",
+        amount: 0.5,
+        type: "float",
+        min: 0,
+        max: 1
+      },
+      tolerance: {
+        name: "tolerance",
+        amount: 0.04,
+        type: "float",
+        min: 0,
+        max: 1
+      }
+      // .thresh( threshold, tolerance )
+      // threshold :: float (default 0.5)
+      // tolerance :: float (default 0.04)
+    }
+  }
 ];
 
-//scale?
-
-// var color = [Math.random(), Math.random(), Math.random()];
-// var patternIndex = getRandomInt(3)
-// var pattern = patterns[patternIndex]
-
-module.exports = { sources: sources, mixers: mixers, variants: variants };
+module.exports = { sources: sources, mixers: mixers, modifiers: modifiers };
 
 },{}],3:[function(require,module,exports){
+const { modifiers } = require("./hydraOptions");
+const { createParamsButtons } = require("./source");
+const {
+  buttonContainer,
+  resetButtons,
+  createControlButton,
+  loadSketch
+} = require("./utils.js");
+
+//loop through all of the sources and create button
+const createModifierButtons = () => {
+  //remove any existing buttons
+  resetButtons();
+  //create back button that links back to source buttons
+  // createControlButton("back", createParamsButtons(sketchState));
+  // createControlButton("next", createModifierButtons);
+  console.log(sketchState);
+  modifiers.forEach(modifier => {
+    const name = modifier.name;
+    const btn = document.createElement("div");
+    btn.setAttribute("class", `button my-1`);
+    btn.setAttribute("id", `${name}`);
+    btn.innerHTML = `${name}`;
+    //add an eventHandler that adds the modifier to the sketch
+    // btn.onclick = () => addSourcetoSketchState(source);
+    buttonContainer.appendChild(btn);
+  });
+};
+
+module.exports = {
+  createModifierButtons: createModifierButtons
+};
+
+},{"./hydraOptions":2,"./source":4,"./utils.js":5}],4:[function(require,module,exports){
+const { sources } = require("./hydraOptions");
+const { createModifierButtons } = require("./modifiers");
+const {
+  buttonContainer,
+  resetButtons,
+  loadSketch,
+  createControlButton
+} = require("./utils.js");
+
+//loop through all of the sources and create button
+const createSourceButtons = () => {
+  //remove any existing buttons
+  resetButtons();
+  sources.forEach(source => {
+    const name = source.name;
+    const btn = document.createElement("div");
+    btn.setAttribute("class", `button my-1`);
+    btn.setAttribute("id", `${name}`);
+    btn.innerHTML = `${name}`;
+    //add an eventHandler that adds the source to the sketch
+    btn.onclick = () => addSourcetoSketch(source);
+    buttonContainer.appendChild(btn);
+  });
+};
+
+// loop through all params for any given source
+const createParamsButtons = () => {
+  //reset al buttons in the container
+  resetButtons();
+  //create back button that links back to source buttons
+  createControlButton("back", createSourceButtons);
+  createControlButton("next", createModifierButtons);
+
+  //create buttons to adjust each paramter for this source
+  let paramsKey = Object.keys(sketchState.params);
+  paramsKey.forEach(key => {
+    param = sketchState.params[key];
+    //add a span with each parameter name
+    const nameSpan = document.createElement("span");
+    nameSpan.innerHTML = `${param.name}`;
+    buttonContainer.appendChild(nameSpan);
+
+    //create range inputs for float or ints
+    if (param.type === "float" || "int") {
+      const input = document.createElement("input");
+      input.setAttribute("type", "range");
+      input.setAttribute("min", 0);
+      input.setAttribute("max", 100);
+      const scale = (param.max - param.min) / 100;
+      input.setAttribute("value", param.value / scale);
+      input.setAttribute("class", "slider");
+      input.oninput = () => updateParam(key, event.target.value, scale);
+      buttonContainer.appendChild(input);
+    }
+  });
+};
+
+//update a parameter in a source
+const updateParam = (key, eventValue, scale) => {
+  eventValue = eventValue * scale;
+  sketchState.params[key].value = eventValue;
+  loadSketch(sketchState);
+};
+
+//add the sources to the sketchState
+addSourcetoSketch = source => {
+  //set sketchState equal to the source
+  sketchState = source;
+  loadSketch();
+  createParamsButtons();
+};
+
+module.exports = {
+  createParamsButtons: createParamsButtons,
+  createSourceButtons: createSourceButtons
+};
+
+},{"./hydraOptions":2,"./modifiers":3,"./utils.js":5}],5:[function(require,module,exports){
+//utility function
+function getRandomInt(max) {
+  return Math.floor(Math.random() * Math.floor(max));
+}
+
+//loads the sketch from the state
+const loadSketch = () => {
+  let func = eval(sketchState.name);
+  let values = [];
+  let paramsKey = Object.keys(sketchState.params);
+  paramsKey.forEach(key => {
+    values.push(sketchState.params[key].value);
+  });
+  let state = func(...values);
+  return state.out();
+};
+
+//global button container available to every function
+var buttonContainer = document.getElementById("button-container");
+
+//clears out any existing buttons in the button container
+const resetButtons = () => {
+  buttonContainer.innerHTML = "";
+};
+
+//create back or next button button to go back to all sources
+//type = "next" or "back"
+//onClick is an onClick function
+const createControlButton = (type, onClick) => {
+  const button = document.createElement("div");
+  button.setAttribute("class", `control button my-1`);
+  button.setAttribute("id", `${type}`);
+  button.innerHTML = `${type}`;
+  button.onclick = () => onClick();
+  buttonContainer.appendChild(button);
+};
+
+module.exports = {
+  getRandomInt: getRandomInt,
+  loadSketch: loadSketch,
+  buttonContainer: buttonContainer,
+  resetButtons: resetButtons,
+  createControlButton: createControlButton
+};
+
+},{}],6:[function(require,module,exports){
 module.exports = function (cb) {
     if (typeof Promise !== 'function') {
       var err = new Error('Device enumeration not supported.');
@@ -401,7 +759,7 @@ module.exports = function (cb) {
     });
 };
 
-},{}],4:[function(require,module,exports){
+},{}],7:[function(require,module,exports){
 // Copyright Joyent, Inc. and other Node contributors.
 //
 // Permission is hereby granted, free of charge, to any person obtaining a
@@ -926,7 +1284,7 @@ function functionBindPolyfill(context) {
   };
 }
 
-},{}],5:[function(require,module,exports){
+},{}],8:[function(require,module,exports){
 const Output = require('./src/output.js')
 const loop = require('raf-loop')
 const Source = require('./src/hydra-source.js')
@@ -1277,7 +1635,7 @@ class HydraSynth {
 
 module.exports = HydraSynth
 
-},{"./src/GeneratorFactory.js":6,"./src/audio.js":7,"./src/hydra-source.js":11,"./src/output.js":14,"./src/video-recorder.js":17,"mouse-change":21,"raf-loop":25,"regl":27}],6:[function(require,module,exports){
+},{"./src/GeneratorFactory.js":9,"./src/audio.js":10,"./src/hydra-source.js":14,"./src/output.js":17,"./src/video-recorder.js":20,"mouse-change":24,"raf-loop":28,"regl":30}],9:[function(require,module,exports){
 /* globals tex */
 const glslTransforms = require('./composable-glsl-functions.js')
 
@@ -1607,7 +1965,7 @@ Generator.prototype.out = function (_output) {
 
 module.exports = GeneratorFactory
 
-},{"./composable-glsl-functions.js":8,"./counter.js":9,"./renderpass-functions.js":15,"./shaderManager.js":16}],7:[function(require,module,exports){
+},{"./composable-glsl-functions.js":11,"./counter.js":12,"./renderpass-functions.js":18,"./shaderManager.js":19}],10:[function(require,module,exports){
 const Meyda = require('meyda')
 
 class Audio {
@@ -1825,7 +2183,7 @@ class Audio {
 
 module.exports = Audio
 
-},{"meyda":20}],8:[function(require,module,exports){
+},{"meyda":23}],11:[function(require,module,exports){
 // to add: ripple: https://www.shadertoy.com/view/4djGzz
 // mask
 // convolution
@@ -2886,7 +3244,7 @@ module.exports = {
   }
 }
 
-},{}],9:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 // singleton class that generates ids to use has unique variable names for variables
 // counter.js
 
@@ -2897,7 +3255,7 @@ module.exports = {
   get: () => value
 }
 
-},{}],10:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 module.exports = {
   src: {
     transformType: 'color',
@@ -3254,7 +3612,7 @@ module.exports = {
   }
 }
 
-},{}],11:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 const Webcam = require('./webcam.js')
 const Screen = require('./lib/screenmedia.js')
 
@@ -3343,7 +3701,7 @@ class HydraSource  {
 
 module.exports = HydraSource
 
-},{"./lib/screenmedia.js":13,"./webcam.js":18}],12:[function(require,module,exports){
+},{"./lib/screenmedia.js":16,"./webcam.js":21}],15:[function(require,module,exports){
 var adapter = require('webrtc-adapter');
 // to do: clean up this code
 // cache for constraints and callback
@@ -3553,7 +3911,7 @@ typeof window !== 'undefined' && window.addEventListener('message', function (ev
     }
 });
 
-},{"webrtc-adapter":31}],13:[function(require,module,exports){
+},{"webrtc-adapter":34}],16:[function(require,module,exports){
 const getScreenMedia = require('./getscreenmedia.js')
 
 module.exports = function (options) {
@@ -3592,7 +3950,7 @@ module.exports = function (options) {
 
 }
 
-},{"./getscreenmedia.js":12}],14:[function(require,module,exports){
+},{"./getscreenmedia.js":15}],17:[function(require,module,exports){
 const transforms = require('./glsl-transforms.js')
 
 var Output = function (opts) {
@@ -3761,7 +4119,7 @@ Output.prototype.tick = function (props) {
 
 module.exports = Output
 
-},{"./glsl-transforms.js":10}],15:[function(require,module,exports){
+},{"./glsl-transforms.js":13}],18:[function(require,module,exports){
 // to add: ripple: https://www.shadertoy.com/view/4djGzz
 // mask
 // convolution
@@ -3838,7 +4196,7 @@ module.exports = {
   }
 }
 
-},{}],16:[function(require,module,exports){
+},{}],19:[function(require,module,exports){
 // to do:
 // 1. how to handle multi-pass renders
 // 2. how to handle vertex shaders
@@ -3890,7 +4248,7 @@ module.exports = function (defaultOutput) {
   return Frag
 }
 
-},{}],17:[function(require,module,exports){
+},{}],20:[function(require,module,exports){
 class VideoRecorder {
   constructor(stream) {
     this.mediaSource = new MediaSource()
@@ -3978,7 +4336,7 @@ class VideoRecorder {
 
 module.exports = VideoRecorder
 
-},{}],18:[function(require,module,exports){
+},{}],21:[function(require,module,exports){
 const enumerateDevices = require('enumerate-devices')
 
 module.exports = function (deviceId) {
@@ -4007,7 +4365,7 @@ module.exports = function (deviceId) {
     .catch(console.log.bind(console))
 }
 
-},{"enumerate-devices":3}],19:[function(require,module,exports){
+},{"enumerate-devices":6}],22:[function(require,module,exports){
 if (typeof Object.create === 'function') {
   // implementation from standard node.js 'util' module
   module.exports = function inherits(ctor, superCtor) {
@@ -4036,7 +4394,7 @@ if (typeof Object.create === 'function') {
   }
 }
 
-},{}],20:[function(require,module,exports){
+},{}],23:[function(require,module,exports){
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
@@ -7490,7 +7848,7 @@ function hamming(size) {
 /******/ });
 });
 
-},{}],21:[function(require,module,exports){
+},{}],24:[function(require,module,exports){
 'use strict'
 
 module.exports = mouseListen
@@ -7697,7 +8055,7 @@ function mouseListen (element, callback) {
   return result
 }
 
-},{"mouse-event":22}],22:[function(require,module,exports){
+},{"mouse-event":25}],25:[function(require,module,exports){
 'use strict'
 
 function mouseButtons(ev) {
@@ -7759,7 +8117,7 @@ function mouseRelativeY(ev) {
 }
 exports.y = mouseRelativeY
 
-},{}],23:[function(require,module,exports){
+},{}],26:[function(require,module,exports){
 (function (process){
 // Generated by CoffeeScript 1.12.2
 (function() {
@@ -7799,7 +8157,7 @@ exports.y = mouseRelativeY
 
 
 }).call(this,require('_process'))
-},{"_process":24}],24:[function(require,module,exports){
+},{"_process":27}],27:[function(require,module,exports){
 // shim for using process in browser
 var process = module.exports = {};
 
@@ -7985,7 +8343,7 @@ process.chdir = function (dir) {
 };
 process.umask = function() { return 0; };
 
-},{}],25:[function(require,module,exports){
+},{}],28:[function(require,module,exports){
 var inherits = require('inherits')
 var EventEmitter = require('events').EventEmitter
 var now = require('right-now')
@@ -8030,7 +8388,7 @@ Engine.prototype.tick = function() {
     this.emit('tick', dt)
     this.last = time
 }
-},{"events":4,"inherits":19,"raf":26,"right-now":28}],26:[function(require,module,exports){
+},{"events":7,"inherits":22,"raf":29,"right-now":31}],29:[function(require,module,exports){
 (function (global){
 var now = require('performance-now')
   , root = typeof window === 'undefined' ? global : window
@@ -8109,7 +8467,7 @@ module.exports.polyfill = function(object) {
 }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"performance-now":23}],27:[function(require,module,exports){
+},{"performance-now":26}],30:[function(require,module,exports){
 (function(aa,ia){"object"===typeof exports&&"undefined"!==typeof module?module.exports=ia():"function"===typeof define&&define.amd?define(ia):aa.createREGL=ia()})(this,function(){function aa(a,b){this.id=Ab++;this.type=a;this.data=b}function ia(a){if(0===a.length)return[];var b=a.charAt(0),c=a.charAt(a.length-1);if(1<a.length&&b===c&&('"'===b||"'"===b))return['"'+a.substr(1,a.length-2).replace(/\\/g,"\\\\").replace(/"/g,'\\"')+'"'];if(b=/\[(false|true|null|\d+|'[^']*'|"[^"]*")\]/.exec(a))return ia(a.substr(0,
 b.index)).concat(ia(b[1])).concat(ia(a.substr(b.index+b[0].length)));b=a.split(".");if(1===b.length)return['"'+a.replace(/\\/g,"\\\\").replace(/"/g,'\\"')+'"'];a=[];for(c=0;c<b.length;++c)a=a.concat(ia(b[c]));return a}function Za(a){return"["+ia(a).join("][")+"]"}function Bb(){var a={"":0},b=[""];return{id:function(c){var e=a[c];if(e)return e;e=a[c]=b.length;b.push(c);return e},str:function(a){return b[a]}}}function Cb(a,b,c){function e(){var b=window.innerWidth,e=window.innerHeight;a!==document.body&&
 (e=a.getBoundingClientRect(),b=e.right-e.left,e=e.bottom-e.top);g.width=c*b;g.height=c*e;E(g.style,{width:b+"px",height:e+"px"})}var g=document.createElement("canvas");E(g.style,{border:0,margin:0,padding:0,top:0,left:0});a.appendChild(g);a===document.body&&(g.style.position="absolute",E(a.style,{margin:0,padding:0}));window.addEventListener("resize",e,!1);e();return{canvas:g,onDestroy:function(){window.removeEventListener("resize",e);a.removeChild(g)}}}function Db(a,b){function c(c){try{return a.getContext(c,
@@ -8262,7 +8620,7 @@ d,!1));var aa=K.setFBO=p({framebuffer:la.define.call(null,1,"framebuffer")});m()
 renderbuffer:M.create,framebuffer:K.create,framebufferCube:K.createCube,attributes:h,frame:r,on:function(a,b){var c;switch(a){case "frame":return r(b);case "lost":c=U;break;case "restore":c=W;break;case "destroy":c=Z}c.push(b);return{cancel:function(){for(var a=0;a<c.length;++a)if(c[a]===b){c[a]=c[c.length-1];c.pop();break}}}},limits:R,hasExtension:function(a){return 0<=R.extensions.indexOf(a.toLowerCase())},read:u,destroy:function(){G.length=0;e();L&&(L.removeEventListener("webglcontextlost",g),
 L.removeEventListener("webglcontextrestored",d));Q.clear();K.clear();M.clear();A.clear();T.clear();F.clear();B&&B.clear();Z.forEach(function(a){a()})},_gl:k,_refresh:m,poll:function(){t();B&&B.update()},now:z,stats:v});a.onDone(null,h);return h}});
 
-},{}],28:[function(require,module,exports){
+},{}],31:[function(require,module,exports){
 (function (global){
 module.exports =
   global.performance &&
@@ -8273,7 +8631,7 @@ module.exports =
   }
 
 }).call(this,typeof global !== "undefined" ? global : typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{}],29:[function(require,module,exports){
+},{}],32:[function(require,module,exports){
 /*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
@@ -10132,7 +10490,7 @@ module.exports = function(window, edgeVersion) {
   return RTCPeerConnection;
 };
 
-},{"sdp":30}],30:[function(require,module,exports){
+},{"sdp":33}],33:[function(require,module,exports){
 /* eslint-env node */
 'use strict';
 
@@ -10959,7 +11317,7 @@ if (typeof module === 'object') {
   module.exports = SDPUtils;
 }
 
-},{}],31:[function(require,module,exports){
+},{}],34:[function(require,module,exports){
 /*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
@@ -10980,7 +11338,7 @@ var _adapter_factory = require('./adapter_factory.js');
 var adapter = (0, _adapter_factory.adapterFactory)({ window: window });
 exports.default = adapter;
 
-},{"./adapter_factory.js":32}],32:[function(require,module,exports){
+},{"./adapter_factory.js":35}],35:[function(require,module,exports){
 'use strict';
 
 Object.defineProperty(exports, "__esModule", {
@@ -11148,7 +11506,7 @@ function adapterFactory() {
 
 // Browser shims.
 
-},{"./chrome/chrome_shim":33,"./common_shim":36,"./edge/edge_shim":37,"./firefox/firefox_shim":41,"./safari/safari_shim":44,"./utils":45}],33:[function(require,module,exports){
+},{"./chrome/chrome_shim":36,"./common_shim":39,"./edge/edge_shim":40,"./firefox/firefox_shim":44,"./safari/safari_shim":47,"./utils":48}],36:[function(require,module,exports){
 
 /*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
@@ -11917,7 +12275,7 @@ function fixNegotiationNeeded(window) {
   });
 }
 
-},{"../utils.js":45,"./getdisplaymedia":34,"./getusermedia":35}],34:[function(require,module,exports){
+},{"../utils.js":48,"./getdisplaymedia":37,"./getusermedia":38}],37:[function(require,module,exports){
 /*
  *  Copyright (c) 2018 The adapter.js project authors. All Rights Reserved.
  *
@@ -11968,7 +12326,7 @@ function shimGetDisplayMedia(window, getSourceId) {
   };
 }
 
-},{}],35:[function(require,module,exports){
+},{}],38:[function(require,module,exports){
 /*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
@@ -12175,7 +12533,7 @@ function shimGetUserMedia(window) {
   }
 }
 
-},{"../utils.js":45}],36:[function(require,module,exports){
+},{"../utils.js":48}],39:[function(require,module,exports){
 /*
  *  Copyright (c) 2017 The WebRTC project authors. All Rights Reserved.
  *
@@ -12521,7 +12879,7 @@ function removeAllowExtmapMixed(window) {
   };
 }
 
-},{"./utils":45,"sdp":30}],37:[function(require,module,exports){
+},{"./utils":48,"sdp":33}],40:[function(require,module,exports){
 /*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
@@ -12641,7 +12999,7 @@ function shimReplaceTrack(window) {
   }
 }
 
-},{"../utils":45,"./filtericeservers":38,"./getdisplaymedia":39,"./getusermedia":40,"rtcpeerconnection-shim":29}],38:[function(require,module,exports){
+},{"../utils":48,"./filtericeservers":41,"./getdisplaymedia":42,"./getusermedia":43,"rtcpeerconnection-shim":32}],41:[function(require,module,exports){
 /*
  *  Copyright (c) 2018 The WebRTC project authors. All Rights Reserved.
  *
@@ -12702,7 +13060,7 @@ function filterIceServers(iceServers, edgeVersion) {
   });
 }
 
-},{"../utils":45}],39:[function(require,module,exports){
+},{"../utils":48}],42:[function(require,module,exports){
 /*
  *  Copyright (c) 2018 The adapter.js project authors. All Rights Reserved.
  *
@@ -12730,7 +13088,7 @@ function shimGetDisplayMedia(window) {
   window.navigator.mediaDevices.getDisplayMedia = window.navigator.getDisplayMedia.bind(window.navigator);
 }
 
-},{}],40:[function(require,module,exports){
+},{}],43:[function(require,module,exports){
 /*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
@@ -12768,7 +13126,7 @@ function shimGetUserMedia(window) {
   };
 }
 
-},{}],41:[function(require,module,exports){
+},{}],44:[function(require,module,exports){
 /*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
@@ -13101,7 +13459,7 @@ function shimCreateAnswer(window) {
   };
 }
 
-},{"../utils":45,"./getdisplaymedia":42,"./getusermedia":43}],42:[function(require,module,exports){
+},{"../utils":48,"./getdisplaymedia":45,"./getusermedia":46}],45:[function(require,module,exports){
 /*
  *  Copyright (c) 2018 The adapter.js project authors. All Rights Reserved.
  *
@@ -13140,7 +13498,7 @@ function shimGetDisplayMedia(window, preferredMediaSource) {
   };
 }
 
-},{}],43:[function(require,module,exports){
+},{}],46:[function(require,module,exports){
 /*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
@@ -13218,7 +13576,7 @@ function shimGetUserMedia(window) {
   }
 }
 
-},{"../utils":45}],44:[function(require,module,exports){
+},{"../utils":48}],47:[function(require,module,exports){
 /*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
@@ -13569,7 +13927,7 @@ function shimCreateOfferLegacy(window) {
   };
 }
 
-},{"../utils":45}],45:[function(require,module,exports){
+},{"../utils":48}],48:[function(require,module,exports){
 /*
  *  Copyright (c) 2016 The WebRTC project authors. All Rights Reserved.
  *
