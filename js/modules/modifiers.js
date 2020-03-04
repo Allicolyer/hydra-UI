@@ -12,9 +12,8 @@ const createModifierButtons = () => {
   //remove any existing buttons
   resetButtons();
   //create back button that links back to source buttons
-  // createControlButton("back", createParamsButtons(sketchState));
+  createControlButton("back", createParamsButtons);
   // createControlButton("next", createModifierButtons);
-  console.log(sketchState);
   modifiers.forEach(modifier => {
     const name = modifier.name;
     const btn = document.createElement("div");
@@ -22,9 +21,16 @@ const createModifierButtons = () => {
     btn.setAttribute("id", `${name}`);
     btn.innerHTML = `${name}`;
     //add an eventHandler that adds the modifier to the sketch
-    // btn.onclick = () => addSourcetoSketchState(source);
+    btn.onclick = () => addModifiertoSketch(modifier);
     buttonContainer.appendChild(btn);
   });
+};
+
+//add the sources to the sketchState
+addModifiertoSketch = modifier => {
+  sketchState.modifiers = [modifier];
+  loadSketch();
+  createParamsButtons();
 };
 
 module.exports = {

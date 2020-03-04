@@ -5,14 +5,39 @@ function getRandomInt(max) {
 
 //loads the sketch from the state
 const loadSketch = () => {
+  //evaluate the sketchState name as a function
   let func = eval(sketchState.name);
+  //initalize an empty array for the parameter values
   let values = [];
+  //loop through each parameter value and push it onto the array
   let paramsKey = Object.keys(sketchState.params);
   paramsKey.forEach(key => {
     values.push(sketchState.params[key].value);
   });
+  //spread the values into the function
   let state = func(...values);
-  return state.out();
+  //if there are any modifiers, add those to the state
+  if (sketchState.modifiers) {
+    //modifiers is an array
+    let modifiers = sketchState.modifiers;
+    modifiers.forEach(modifier => {
+      //evaluate the modifier name as a function
+      let mod_func = eval(modifier.name);
+      console.log(modifier.name);
+      //initalize an empty array for the parameter values
+      let values = [];
+      //loop through each parameter value and push it onto the array
+      let paramsKey = Object.keys(modifier.params);
+      paramsKey.forEach(key => {
+        values.push(modifier.params[key].value);
+      });
+      let next_state = mod_func(...values);
+    });
+    return state.next_state.out();
+  } else {
+    //load the sketch into the Hydra Canvas
+    return state.out();
+  }
 };
 
 //global button container available to every function
